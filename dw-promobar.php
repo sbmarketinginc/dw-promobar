@@ -414,10 +414,14 @@ if ( ! function_exists('dwpb') ) {
 				<?php 
 					$dwpbcd_hide = 'hide';
 					$dwpb_hide = '';
+					
+					// Disable Countdown for Dynamic Version
+					/*
 					if ($dwpbcd_use == 'yes') {
 						$dwpbcd_hide = '';
 						$dwpb_hide = 'hide';
 					}
+					*/
 
 					$dwpb_bar_text = $dwpb_d_bar_text;
 					if ( $dwpb_bar_text == '' ) {
@@ -579,9 +583,12 @@ if ( ! function_exists('dwpb') ) {
 		);
 
 		$timeleft = '';
+		// Disable Countdown for Dynamic Version
+		/*
 		if ( dwpb_get_option('dwpbcd_time_left') != '' ) {
 			$timeleft = dwpb_get_option('dwpbcd_time_left');
 		}
+		*/
 
 		$timezone_format = _x('Y-m-d G:i:s', 'timezone date format');
 		$dwpb_reset_cookie_value = get_option( 'dwpb_reset_cookie', 2 );
