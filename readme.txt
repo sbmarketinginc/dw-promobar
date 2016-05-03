@@ -10,6 +10,10 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 == Description ==
 A clean and simple WordPress plugin that allows you to have a promotion and message bar displayed at the top of your site. You can have a meaningful message or simply a catchy message for your promotion within a few simple setup. You can even have a countdown clock. All these features can be easily configured in the admin panel. You have a control over the entire bar from text message, countdown time to text and link colors.
 
+== URL Triggered Coupon in Top Bar ==
+
+Using a url that includes a coupon code will cause it to be displayed in the top bar for 24 hours. ie www.SomeSite.com?promo_code=COUPONCODE will overide the top bar to use the coupons exerpt as the title and the coupon code as link title.
+
 == Installation ==
 
 1. Upload `dw-promobar` to the `/wp-content/plugins/` directory
