@@ -1,42 +1,32 @@
-<?php
-/*
-Plugin Name: DW PromoBar
-Plugin URI: 
-Description:  Custom promotion bar for your wordpress site.
-Version: 1.0.4
-Author: DesignWall
-Author URI: http://www.designwall.com
-*/
-
-// Add Query Variable Promo Code to Wordpress List
-function add_query_vars_filter( $vars ){
-  $vars[] = "promo_code";
-  return $vars;
-}
-add_filter( 'query_vars', 'add_query_vars_filter' );
-
-// Set Promo cookie if present in Url specific to dynamic
-add_action( 'init', 'set_promo_cookie' );
-
-function set_promo_cookie() {
-	if(isset($wp_query->query_vars['promo_code'])) {
-  		setcookie( $promo_code, $wp_query->query_vars['promo_code'], (1 * DAYS_IN_SECONDS));
-	}
-}
-
 // Get Promo Code from cookie or URL - specific to dynamic
 function get_promo_code (){
-	if(!isset($_COOKIE[$promo_code])) {
-		$promo_code = $_COOKIE[$promo_code];
-	} elseif (isset($wp_query->query_vars['promo_code'])) {
-		$promo_code = $wp_query->query_vars['promo_code'];
+
+	if (isset($_GET['promo_code'])) {
+
+		$sanitized_var = $_GET['promo_code'];
+
+		setcookie( 'promo_code', $sanitized_var, (time() + 86400), '/');
+		$promo_code = $_GET['promo_code'];
+
+	} else if(isset($_COOKIE['promo_code'])) {
+
+		$promo_code = $_COOKIE['promo_code'];
+
 	} else {
 		return null;
 	}
 	return $promo_code;
 }
 
-$promo_code = get_promo_code();
+function check_for_promo (){
+	if (isset($_GET['promo_code']) || isset($_COOKIE['promo_code'])) {
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
 
 if ( ! function_exists('dwpb') ) {
 
@@ -282,7 +272,12 @@ if ( ! function_exists('dwpb') ) {
 		
 		//Get Promo Code as an Object
 		$promo_code = get_promo_code();
+
 		$promo_object = get_page_by_title( $promo_code, 'OBJECT', 'shop_coupon' );
+
+		if(!$promo_object){
+			setcookie( 'promo_code', $sanitized_var, (time() - 864000), '/');
+		}
 		
 		$dwpb_d_bar_text = $promo_object->post_excerpt;
 		$dwpb_d_link_text = $promo_object->post_title;
@@ -308,14 +303,6 @@ if ( ! function_exists('dwpb') ) {
 		$dwpb_ramain_top = dwpb_get_option('dwpb_ramain_top');
 		$dwpbcd_use = dwpb_get_option('dwpbcd_use');
 
-		$dwpbcd_link_text = $dwpb_d_link_text;
-		$dwpbcd_link_url = $dwpb_d_link_url;
-		$dwpbcd_link_target = $dwpb_d_link_target;
-
-		$dwpb_link_text = $dwpbd_link_text;
-		$dwpb_link_url = $dwpbd_link_url;
-		$dwpb_link_target = $dwpbd_link_target;
-
 		$dwpb_font_family = dwpb_get_option('dwpb_font_family');
 		$dwpb_font_size = dwpb_get_option('dwpb_font_size');
 		$dwpb_background_color = dwpb_get_option('dwpb_background_color');
@@ -329,13 +316,8 @@ if ( ! function_exists('dwpb') ) {
 		$dwpb_custon_style = dwpb_get_option('dwpb_custon_style');
 
 		$dwpb_link = '';
-		if ( $dwpb_link_text != '' ) {
-			$dwpb_link = ' <a class="'. $dwpb_link_style .'" href="'.$dwpb_link_url.' " target="'. $dwpb_link_target .'"" >'.$dwpb_link_text.'</a>';
-		}
-
-		$dwpbcd_link = '';
-		if ( $dwpbcd_link_text != '' ) {
-			$dwpbcd_link = ' <a class="'. $dwpb_link_style .'" href="'.$dwpbcd_link_url.' " target="'. $dwpbcd_link_target .'"" >'.$dwpbcd_link_text.'</a>';
+		if ( $dwpb_d_link_text != '' ) {
+			$dwpb_link = ' <a class="'. $dwpb_link_style .'" href="'.$dwpb_d_link_url.' " target="'. $dwpb_link_target .'"" >'. 'Use Code: ' . strtoupper ($dwpb_d_link_text) .'</a>';
 		}
 	?>
 		<style>
@@ -416,43 +398,19 @@ if ( ! function_exists('dwpb') ) {
 			<?php endif; ?>
 		</style>
 		
-		<div id="dwpb" class=" <?php echo $dwpb_ramain_top; ?> ">
-			<div class="dwpb-inner">
-				<?php 
-					$dwpbcd_hide = 'hide';
-					$dwpb_hide = '';
-					
-					// Disable Countdown for Dynamic Version
-					/*
-					if ($dwpbcd_use == 'yes') {
-						$dwpbcd_hide = '';
-						$dwpb_hide = 'hide';
-					}
-					*/
-
-					$dwpb_bar_text = $dwpb_d_bar_text;
-					if ( $dwpb_bar_text == '' ) {
-						$dwpb_bar_text = __('Hello. Add your message here.','dwpb');
-					}
-
-					$dwpbcd_text = $dwpb_d_bar_text;
-					if ( $dwpbcd_text == '' ) {
-						$dwpbcd_text = __('Hello. Add your message here.','dwpb');
-					}
-				?>
-
-				<div class="dwpb-message <?php echo $dwpb_hide; ?>">
-					<span class="dwpb-content"><?php echo $dwpb_bar_text; ?></span>
-					<?php echo $dwpb_link; ?>
-				</div>
-					
-				<div class="dwpb-countdown <?php echo $dwpbcd_hide; ?>">
-					<div class="dwpb-counter"></div>
-					<span class="dwpbcd-content"><?php echo $dwpbcd_text; ?></span>
-					<?php echo $dwpbcd_link; ?>
+		<?php 
+		// If empty Title hide the bar
+		if ( $dwpb_d_bar_text != '' ) { ?>
+			<div id="dwpb" class=" <?php echo $dwpb_ramain_top; ?> ">
+				<div class="dwpb-inner">
+					<div class="dwpb-message ">
+						<span class="dwpb-content"><?php echo $dwpb_d_bar_text; ?></span>
+							<?php echo $dwpb_link; ?>
+					</div>
 				</div>
 			</div>
-		</div>
+		<?php } ?>
+
 		<?php 
 			$dwpb_close = dwpb_get_option('dwpb_close');
 			$dwpb_action_class = 'dwpb-action';
@@ -471,7 +429,7 @@ if ( ! function_exists('dwpb') ) {
 	$dwpb_end = strtotime(dwpb_get_option('dwpb_end'));	
 	$dwpb_timezone = strtotime(date_i18n('Y-m-d G:i:s'));
 
-	if($promo_code){
+	if(check_for_promo()){
 		add_action( 'wp_footer', 'dwpb_dynamic', 100);
 	} else if ( ( $dwpb_start < $dwpb_timezone && ( $dwpb_timezone < $dwpb_end || $dwpb_end == '' ) ) && $dwpb_enable == 'yes' ) {
 		add_action( 'wp_footer', 'dwpb', 100);
@@ -543,7 +501,7 @@ if ( ! function_exists('dwpb') ) {
 	
 	// Specific For Dynamic Promos
 	function dwpb_scripts_dynamic() {
-		
+
 		$is_front_page = dwpb_get_option('dwpb_front_page', false);
 		$is_archives = dwpb_get_option('dwpb_archives', false);
 		$is_tags = dwpb_get_option('dwpb_tags', false);
@@ -608,7 +566,7 @@ if ( ! function_exists('dwpb') ) {
 		endif; // Show on
 	}
 	
-	if($promo_code){
+	if(check_for_promo()){
 		add_action( 'wp_footer', 'dwpb_scripts_dynamic');
 	} else if ( ( $dwpb_start < $dwpb_timezone && ( $dwpb_timezone < $dwpb_end || $dwpb_end == '' ) ) && $dwpb_enable == 'yes' ) {
 		add_action( 'wp_footer', 'dwpb_scripts');
