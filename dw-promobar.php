@@ -8,6 +8,13 @@ Author: DesignWall
 Author URI: http://www.designwall.com
 */
 
+// Add Query Variable Promo Code to Wordpress List
+function add_query_vars_filter( $vars ){
+  $vars[] = "promo_code";
+  return $vars;
+}
+add_filter( 'query_vars', 'add_query_vars_filter' );
+
 // Set Promo cookie if present in Url specific to dynamic
 add_action( 'init', 'set_promo_cookie' );
 
