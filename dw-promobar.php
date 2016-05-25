@@ -1,3 +1,13 @@
+<?php
+/*
+Plugin Name: DW PromoBar
+Plugin URI: 
+Description:  Custom promotion bar for your wordpress site.
+Version: 1.0.4
+Author: DesignWall
+Author URI: http://www.designwall.com
+*/
+
 // Get Promo Code from cookie or URL - specific to dynamic
 function get_promo_code (){
 
