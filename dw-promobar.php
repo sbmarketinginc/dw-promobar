@@ -283,7 +283,7 @@ if ( ! function_exists('dwpb') ) {
 		$promo_object = get_page_by_title( $promo_code, 'OBJECT', 'shop_coupon' );
 
 		if(!$promo_object){
-			setcookie( 'promo_code', $sanitized_var, (time() - 864000), '/');
+			setcookie( 'promo_code', '', (time() - 864000), '/');
 		}
 		
 		$dwpb_d_bar_text = $promo_object->post_excerpt;
