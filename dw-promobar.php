@@ -16,7 +16,7 @@ function get_promo_code (){
 		$sanitized_var = $_GET['promo_code'];
 
 		setcookie( 'promo_code', $sanitized_var, (time() + 86400), '/');
-		$promo_code = $_GET['promo_code'];
+		$promo_code = $sanitized_var;
 
 	} else if(isset($_COOKIE['promo_code'])) {
 
