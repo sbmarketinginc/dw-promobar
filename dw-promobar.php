@@ -13,7 +13,7 @@ function get_promo_code (){
 
 	if (isset($_GET['promo_code'])) {
 
-		$sanitized_var = $_GET['promo_code'];
+		$sanitized_var = preg_replace('/[^-a-zA-Z0-9_]/', '', $_GET['promo_code']);
 
 		setcookie( 'promo_code', $sanitized_var, (time() + 86400), '/');
 		$promo_code = $sanitized_var;
@@ -94,9 +94,6 @@ if ( ! function_exists('dwpb') ) {
 			if ($dwpb_responsive_small) $classes[] = 'dwpb_responsive_small';
 			if ($dwpb_responsive_medium) $classes[] = 'dwpb_responsive_medium';
 			if ($dwpb_responsive_large) $classes[] = 'dwpb_responsive_large';
-
-
-
 
 			return $classes;
 		}
